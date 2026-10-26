@@ -27,6 +27,9 @@ interface StudentContextType {
   preloadedMajors: string[];
   preloadedCourses: { id: string, course: string }[];
   allInterests: { id: string, interest: string }[];
+  interestsLoading: boolean;
+  interestsError: string | null;
+  refreshInterests: () => Promise<void>;
   updateStudentData: (data: Partial<StudentData>) => void;
 }
 
@@ -40,6 +43,8 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   const [preloadedMajors, setPreloadedMajors] = useState<string[]>([]);
   const [preloadedCourses, setPreloadedCourses] = useState<{ id: string, course: string }[]>([]);
   const [allInterests, setAllInterests] = useState<{ id: string, interest: string }[]>([]);
+  const [interestsLoading, setInterestsLoading] = useState(false);
+  const [interestsError, setInterestsError] = useState<string | null>(null);
 
   const fetchStudentData = useCallback(async (forcedUserId?: string) => {
     let activeUserId = forcedUserId;
@@ -138,11 +143,17 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const preloadAppMetadata = useCallback(async () => {
+    setInterestsLoading(true);
+    setInterestsError(null);
     try {
-      const { data } = await supabase.from('interests').select('id, interest').order('interest');
-      if (data) setAllInterests(data);
+      const { data, error } = await supabase.from('interests').select('id, interest').order('interest');
+      if (error) throw error;
+      setAllInterests(data ?? []);
     } catch (err) {
       console.error("Error preloading interests:", err);
+      setInterestsError(err instanceof Error ? err.message : "Could not load interests.");
+    } finally {
+      setInterestsLoading(false);
     }
   }, []);
 
@@ -163,13 +174,20 @@ export function StudentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    preloadAppMetadata();
     fetchStudentData();
     
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        // The interests catalog is restricted to authenticated users by RLS.
+        // Load it after Supabase restores or establishes the session.
+        void preloadAppMetadata();
         fetchStudentData(session.user.id);
-      } else if (event === 'SIGNED_OUT') {
+      } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
+        setAllInterests([]);
+        setInterestsError(null);
+        setInterestsLoading(false);
+      }
+      if (event === 'SIGNED_OUT') {
         setStudentData(null);
         setLoading(false);
       }
@@ -208,6 +226,9 @@ export function StudentProvider({ children }: { children: ReactNode }) {
       preloadedMajors,
       preloadedCourses,
       allInterests,
+      interestsLoading,
+      interestsError,
+      refreshInterests: preloadAppMetadata,
       updateStudentData
     }}>
       {children}

@@ -63,7 +63,7 @@ const groupInterestsByCategory = (interests: { id: string; interest: string }[])
 };
 
 export default function Onboarding() {
-  const { allInterests, refreshData } = useStudent();
+  const { allInterests, interestsLoading, interestsError, refreshInterests, refreshData } = useStudent();
   const [step, setStep] = useState(2);
   const { email } = useLocalSearchParams();
 
@@ -727,8 +727,19 @@ export default function Onboarding() {
                   </View>
                 </View>
               ))}
-              {allInterests.length === 0 && (
+              {allInterests.length === 0 && interestsLoading && (
                 <ActivityIndicator color={COLORS.primary} style={{ marginTop: 20 }} />
+              )}
+              {allInterests.length === 0 && interestsError && (
+                <View style={{ alignItems: "center", padding: SPACING.lg }}>
+                  <Text style={styles.subtitle}>We couldn’t load interests. Check your connection and try again.</Text>
+                  <TouchableOpacity onPress={() => void refreshInterests()} style={styles.retryButton}>
+                    <Text style={styles.retryButtonText}>Try again</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {allInterests.length === 0 && !interestsLoading && !interestsError && (
+                <Text style={styles.subtitle}>No interests are available right now.</Text>
               )}
             </ScrollView>
           </View>
@@ -1065,6 +1076,17 @@ const styles = StyleSheet.create({
     color: COLORS.foreground,
   },
   tagTextSelected: {
+    color: COLORS.background,
+    fontWeight: "600",
+  },
+  retryButton: {
+    marginTop: SPACING.md,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+  },
+  retryButtonText: {
     color: COLORS.background,
     fontWeight: "600",
   },
