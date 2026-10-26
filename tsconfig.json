@@ -3,9 +3,9 @@
   "extends": "expo/tsconfig.base",
   "include": [
     "app/**/*.ts",
-    "app/**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "app/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
