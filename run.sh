@@ -3,6 +3,8 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 PORT="${PORT:-8084}"
+export TMPDIR="${HOME}/.cache/studentlink-tmp"
+mkdir -p "$TMPDIR"
 
 if [[ ! -x node_modules/.bin/expo ]]; then
   echo "Installing project dependencies from package-lock.json..."
