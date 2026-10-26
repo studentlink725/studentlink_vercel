@@ -117,9 +117,8 @@ export default function Welcome() {
     }
   };
 
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
+  const page = (
+    <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
@@ -161,8 +160,11 @@ export default function Welcome() {
             </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  );
+
+  return Platform.OS === "web" ? page : (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>{page}</TouchableWithoutFeedback>
   );
 }
 
