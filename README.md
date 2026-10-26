@@ -1,24 +1,28 @@
 # StudentLink web demo
 
-A small, self-contained Expo Web showcase of StudentLink. It keeps the core product story—meeting students, discovering campus events, and finding support resources—using local sample data so it can be demonstrated without Supabase credentials.
+This copy restores the original StudentLink Expo Router screens and Supabase-backed account, profile, matching, events, and resource flows, configured for Expo Web and Vercel static output.
 
-## Run locally
+## Run on the studentdev host
 
 ```sh
-npm install
-npm run web
+./run.sh
 ```
+
+The launcher installs the locked dependencies when needed and starts Expo Web on port 8084 through an Expo tunnel. It keeps Metro's temporary cache under the current user's home directory to avoid shared `/tmp` cache permission errors.
+
+For a local browser without a tunnel, use `npm run web`.
+
+## Supabase configuration
+
+Copy `.env.example` to `.env` and set the Supabase project URL and anon key. The `.env` file is ignored by Git. For Vercel, add `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` to the project's environment variables before building.
+
+The browser app uses the Supabase anon key. Database access still depends on the project's configured Row Level Security policies.
 
 ## Build for Vercel
 
-The project uses Expo Router with static web output. Vercel can import this directory directly; the included `vercel.json` runs the web export and serves the generated `dist` directory.
-
 ```sh
+npm install
 npm run build
 ```
 
-For a Vercel deployment, set the project root to this directory and use the default build settings from `vercel.json`.
-
-## Demo limitations
-
-Profiles, matches, events, and resources are sample content. Buttons demonstrate local interactions only; authentication, database writes, live matching, and RSVP persistence are not connected. This copy is intended for product demonstration, not as a production release.
+Vercel uses `vercel.json` to build the static Expo web export in `dist`.
