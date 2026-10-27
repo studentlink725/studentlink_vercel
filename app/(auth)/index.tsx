@@ -152,7 +152,7 @@ export default function Welcome() {
 
             <TouchableOpacity
               style={[styles.button, (!email || loading) && styles.buttonDisabled]}
-              onPress={handleNext}
+              onPress={andleNext}
               disabled={!email || loading}
             >
               <Text style={styles.buttonText}>{loading ? "Authenticating..." : "Next"}</Text>
