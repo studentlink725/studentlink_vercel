@@ -15,7 +15,7 @@ import {
 import { useRouter } from "expo-router";
 import { COLORS, SPACING, RADIUS } from "../../src/components/Theme";
 import { ArrowRight, Mail } from "lucide-react-native";
-import { supabase } from "../../src/lib/supabase";
+// import { supabase } from "../../src/lib/supabase"; // TEST: uncomment to restore auth; leaving this disabled triggers a compile error.
 
 export default function Welcome() {
   const [email, setEmail] = useState("");
