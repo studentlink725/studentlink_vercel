@@ -127,7 +127,7 @@ export default function Welcome() {
             <View style={styles.logoContainer}>
               <Text style={styles.logoText}>S</Text>
             </View>
-            <Text style={styles.title}>Welcome to StudentLink</Text>
+            <Text style={styles.title}>Welcome</Text>
             <Text style={styles.subtitle}>
               Enter your email to get started.
             </Text>
