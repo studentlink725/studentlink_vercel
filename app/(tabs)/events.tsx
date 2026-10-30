@@ -310,7 +310,7 @@ function TagPill({ label, onLayout, style }: { label: string; onLayout?: (e: any
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function EventsScreen({ onProfileClick }: { onProfileClick?: () => void }) {
-  const { studentData, allInterests } = useStudent();
+  const { studentData, loading: studentLoading, allInterests } = useStudent();
   const [allEvents, setAllEvents] = useState<EventCard[]>([]);
   const [friendGoingByEvent, setFriendGoingByEvent] = useState<Record<string, FriendGoing[]>>({});
   const [viewMode, setViewMode] = useState<'my' | 'all'>('my');
@@ -330,12 +330,16 @@ export default function EventsScreen({ onProfileClick }: { onProfileClick?: () =
   const [hasAutoSwitched, setHasAutoSwitched] = useState(false);
 
   useEffect(() => {
-    if (studentData && !initializedRef.current) {
-      const hasInterests = Array.isArray(studentData.interests) && studentData.interests.length > 0;
+    if (!studentLoading && !initializedRef.current) {
+      const interests = studentData?.interests;
+      const hasInterests = Array.isArray(interests) && interests.length > 0;
       setViewMode(hasInterests ? 'my' : 'all');
+      // The empty-interest fallback is only for startup. Don't let a later
+      // manual switch to My Interests trigger it again.
+      if (!hasInterests) setHasAutoSwitched(true);
       initializedRef.current = true;
     }
-  }, [studentData]);
+  }, [studentData, studentLoading]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Preserve scroll position of category filter
@@ -464,13 +468,13 @@ export default function EventsScreen({ onProfileClick }: { onProfileClick?: () =
   }, [filter, displayedEvents]);
 
   useEffect(() => {
-    if (!loading && viewMode === 'my' && !hasAutoSwitched) {
+    if (initializedRef.current && !studentLoading && !loading && viewMode === 'my' && !hasAutoSwitched) {
       if (filtered.length === 0) {
         setViewMode('all');
       }
       setHasAutoSwitched(true);
     }
-  }, [loading, viewMode, filtered, hasAutoSwitched]);
+  }, [studentLoading, loading, viewMode, filtered, hasAutoSwitched]);
 
   const renderEvent = ({ item }: { item: EventCard }) => {
     const isGoing = rsvps.has(item.id);
