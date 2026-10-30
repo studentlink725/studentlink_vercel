@@ -456,8 +456,9 @@ export default function EventsScreen({ onProfileClick }: { onProfileClick?: () =
   const filtered = useMemo(() => {
     if (filter === 'All') return displayedEvents;
     return displayedEvents.filter((e) => {
-       if (filter === 'NorQuest') return e.source === 'norquest';
-       if (filter === 'SANQC') return e.source === 'sanqc';
+       const isSanqcEvent = /^SANQC\b/i.test(e.title.trim());
+       if (filter === 'NorQuest') return !isSanqcEvent;
+       if (filter === 'SANQC') return isSanqcEvent;
        return true;
     });
   }, [filter, displayedEvents]);
